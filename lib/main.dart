@@ -22,13 +22,15 @@ class MyApp extends StatelessWidget {
 final titleProvider = Provider((ref) => 'Flutter Demo Home Page');
 final countProvider = StateProvider((ref) => 0);
 
-class MyHomePage extends ConsumerWidget {
+class MyHomePage extends StatelessWidget {
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(ref.watch(titleProvider)),
-      ),
+      appBar: AppBar(title: Consumer(
+        builder: (context, ref, child) {
+          return Text(ref.read(titleProvider));
+        },
+      )),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -36,18 +38,35 @@ class MyHomePage extends ConsumerWidget {
             Text(
               'You have pushed the button this many times:',
             ),
-            Text(
-              ref.watch(countProvider).state.toString(),
-              style: Theme.of(context).textTheme.headline4,
+            Consumer(
+              builder: (context, ref, child) {
+                return Text(
+                  ref.watch(countProvider).state.toString(),
+                  style: Theme.of(context).textTheme.headline4,
+                );
+              },
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => ref.watch(countProvider).state++,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      floatingActionButton:
+          IncreaseButton(), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+class IncreaseButton extends ConsumerWidget {
+  const IncreaseButton({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, ref) {
+    print('button rebuild');
+    return FloatingActionButton(
+      onPressed: () => ref.read(countProvider).state++,
+      tooltip: 'Increment',
+      child: Icon(Icons.add),
     );
   }
 }
